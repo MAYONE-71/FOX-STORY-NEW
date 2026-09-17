@@ -5,252 +5,139 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>小狐的心情故事</title>
 <style>
-:root{--bg:#fbf7ef;--paper:#fffdf8;--green:#dce8d7;--green2:#c6d8bd;--fox:#e49a5a;--foxDark:#c97d43;--bear:#b97d50;--bearDark:#95603d;--rabbit:#f1e8df;--rabbitPink:#e6b4b4;--blue:#9dbab0;--blueDark:#71978d;--yellow:#f2d99a;--pink:#e9b1bb;--ink:#514742;--muted:#7d726b;--line:#ded5ca}
-*{box-sizing:border-box}
-html{margin:0;min-height:100%;scroll-behavior:smooth}
-body{margin:0;min-height:100svh;font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:#e9e4dc;overflow:auto}
-button{font:inherit;color:inherit;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-#app{width:min(100%,1080px);min-height:100svh;margin:0 auto;background:var(--bg);position:relative;overflow:visible;box-shadow:0 12px 40px #0001}
-.page{position:relative;display:none;min-height:100svh;padding:clamp(22px,4vw,44px) clamp(18px,5vw,58px) 54px;flex-direction:column}
-.page.active{display:flex}
-.home{align-items:center;justify-content:center;text-align:center}
-.home .heroFox{width:min(240px,48vw);height:auto;margin-bottom:10px}
-.home h1{font-size:clamp(30px,4vw,44px);margin:4px 0 8px;letter-spacing:.02em}
-.home p{font-size:clamp(18px,2.2vw,24px);margin:0 0 28px;color:var(--muted)}
-.btn{background:var(--fox);color:#fff;padding:15px 34px;border-radius:28px;font-size:21px;font-weight:700;box-shadow:0 5px 0 var(--foxDark);transition:transform .12s,box-shadow .12s,filter .12s;min-height:56px}
-.btn:hover{filter:brightness(1.03);transform:translateY(-1px)}
-.btn:active{transform:translateY(4px);box-shadow:none}
-.story{gap:10px}
-.title{text-align:center;font-size:clamp(27px,3vw,34px);font-weight:800;margin:0 0 2px}
-.subtitle{text-align:center;color:var(--muted);font-size:18px;margin:0 0 6px}
-.scene{position:relative;flex:1;min-height:360px;background:var(--green);border-radius:32px;overflow:hidden;margin:4px 0 6px;border:2px solid #d1dec9}
-.ground{position:absolute;left:-5%;right:-5%;bottom:-4%;height:34%;background:var(--green2);border-radius:50% 50% 0 0/40% 40% 0 0}
-.sun{position:absolute;width:72px;height:72px;border-radius:50%;background:#f3ddb0;right:8%;top:8%}
-.cloud{position:absolute;top:8%;left:15%;width:110px;height:35px;background:#f5f1e7;border-radius:30px;opacity:.72}
-.cloud:before,.cloud:after{content:"";position:absolute;background:#f5f1e7;border-radius:50%}.cloud:before{width:46px;height:46px;left:18px;top:-19px}.cloud:after{width:58px;height:58px;right:14px;top:-28px}
-.tree{position:absolute;left:6%;bottom:24%;width:86px;height:130px}.tree:before{content:"";position:absolute;left:37px;bottom:0;width:16px;height:72px;background:#9d7a5e;border-radius:8px}.tree:after{content:"";position:absolute;left:0;top:0;width:86px;height:82px;background:#b9cfad;border-radius:48% 52% 46% 54%}
-.bubble{position:absolute;left:50%;top:16px;transform:translateX(-50%);background:var(--paper);border-radius:22px;padding:10px 20px;font-size:20px;box-shadow:0 4px 15px #0001;z-index:8;white-space:nowrap;text-align:center}
-.character{position:absolute;width:190px;height:245px;bottom:8%;z-index:5;transition:transform .35s cubic-bezier(.2,.8,.2,1);user-select:none;cursor:pointer}
-.character svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 8px 6px #6c665522)}
-.character:hover{transform:translateY(-5px) scale(1.015)}
-.character.is-tapped{animation:tapPop .42s ease}
-@keyframes tapPop{0%{transform:scale(1)}45%{transform:scale(1.09) translateY(-8px)}100%{transform:scale(1)}}
-.character.bear{left:22%}.character.rabbit{right:22%}.character.corner{left:10%;bottom:4%;transform:rotate(5deg)}.character.play-right{right:14%;bottom:8%}
-.character.bear.angry{transform:translateY(-3px) rotate(-4deg)}
-.character.rabbit.sad{transform:translateY(12px) rotate(4deg)}
-.character.bear.sad{transform:translateY(15px) rotate(5deg)}
-.character.cry{animation:softShake .75s ease-in-out infinite}
-@keyframes softShake{0%,100%{transform:translateX(0)}50%{transform:translateX(-4px)}}
-.ball{position:absolute;width:70px;height:70px;left:50%;bottom:28%;z-index:6;transition:.35s;cursor:pointer}.ball svg{width:100%;height:100%}.ball:hover{transform:rotate(12deg) scale(1.06)}
-.fox-guide{position:absolute;right:4%;bottom:5%;width:145px;height:190px;z-index:7;cursor:pointer}.fox-guide svg{width:100%;height:100%;filter:drop-shadow(0 7px 5px #6c665522)}
-.fox-guide.is-tapped{animation:tapPop .42s ease}
-.choice-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:8px 0 4px}
-.choice{background:var(--paper);border:3px solid transparent;border-radius:25px;padding:14px 8px;min-height:126px;font-size:23px;font-weight:700;box-shadow:0 4px 14px #0000000d;transition:.16s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.choice:hover,.choice.selected{border-color:var(--fox);transform:translateY(-3px);background:#fff8ed}
-.choice .icon{font-size:46px;line-height:1}
-.feedback{background:var(--paper);border-radius:22px;padding:12px 18px;font-size:20px;line-height:1.45;text-align:center;box-shadow:0 3px 12px #0000000b;min-height:60px}
-.next{align-self:center;margin-top:6px}
-.hide{display:none!important}
-.tap-note{text-align:center;font-size:16px;color:var(--muted);margin:0}
-.interaction{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0}
-.inter-card{background:var(--paper);border:3px solid transparent;border-radius:28px;min-height:132px;padding:17px 14px;box-shadow:0 4px 14px #0001;text-align:center;transition:.16s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
-.inter-card:hover,.inter-card.selected{border-color:var(--fox);transform:translateY(-3px);background:#fff8ed}
-.inter-card .big{font-size:39px;line-height:1}.inter-card strong{font-size:21px}.inter-card small{font-size:16px;color:var(--muted)}
-.sentence{background:#f4ead8;border-radius:24px;padding:16px 20px;text-align:center;font-size:clamp(22px,2.7vw,29px);min-height:76px;margin:8px auto;max-width:880px;line-height:1.5}
-.sentence b{color:var(--foxDark)}
-.solution-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:8px 0}
-.solution{background:var(--paper);border:3px solid transparent;border-radius:28px;padding:20px 12px;min-height:210px;text-align:center;font-size:22px;font-weight:700;box-shadow:0 4px 16px #0001;transition:.16s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-.solution:hover,.solution.selected{border-color:var(--fox);transform:translateY(-3px);background:#fff8ed}.solution .emoji{font-size:58px;line-height:1}
-.result{font-size:20px;line-height:1.55;text-align:center;margin:2px auto 8px;max-width:840px;background:#fffaf2;border-radius:22px;padding:14px 18px}
-.summary{align-items:center;justify-content:center;text-align:center;gap:9px}.summary h2{font-size:clamp(28px,3vw,36px);margin:4px 0}.summary .fox-guide{position:relative;right:auto;bottom:auto;width:170px;height:220px}
-.summary .learn{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.learn .pill{background:var(--paper);border-radius:18px;padding:11px 15px;font-size:19px;box-shadow:0 3px 10px #0001}
-.stars{font-size:42px;letter-spacing:5px}
-.sound{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:#fff;box-shadow:0 3px 10px #0001;font-size:24px}
-.helper{font-size:17px;color:var(--muted);text-align:center;margin:0}
-@media(max-width:720px){
-  #app{width:100%;box-shadow:none}
-  .page{padding:20px 15px 44px;min-height:100svh}
-  .scene{min-height:330px;border-radius:25px}.bubble{font-size:17px;white-space:normal;width:76%;padding:9px 13px}
-  .character{width:150px;height:195px}.character.bear{left:10%}.character.rabbit{right:8%}.character.corner{left:2%}.character.play-right{right:4%}.fox-guide{width:105px;height:140px;right:2%}.ball{width:55px;height:55px}
-  .choice-wrap{grid-template-columns:1fr 1fr;gap:10px}.choice{min-height:110px;font-size:19px}.choice .icon{font-size:37px}
-  .interaction{gap:10px}.inter-card{min-height:125px}.inter-card strong{font-size:18px}.inter-card small{font-size:14px}
-  .solution-grid{grid-template-columns:1fr;gap:10px}.solution{min-height:125px;flex-direction:row;justify-content:flex-start;padding:14px 22px}.solution .emoji{font-size:45px}
-  .sentence{font-size:21px}.feedback{font-size:18px}
-}
+:root{--bg:#fff8ed;--paper:#fffdf8;--ink:#493f3a;--muted:#887970;--fox:#f29a52;--fox2:#d96f36;--bear:#b9825d;--bear2:#8d5a3d;--rabbit:#f5eee5;--rabbit2:#e5d6c7;--mint:#cfe5d6;--mint2:#a9cbb7;--sky:#d8e9ee;--yellow:#f6d77b;--pink:#e9a8b4;--line:#ead9c8}
+*{box-sizing:border-box}html{min-height:100%;background:#e9e2d8}body{margin:0;min-height:100svh;background:linear-gradient(180deg,#ece6dd,#e4ddd4);font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);overflow:auto}button{font:inherit;border:0;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}#app{width:min(1100px,100%);min-height:100svh;margin:auto;background:var(--bg);overflow:visible;box-shadow:0 10px 45px #6d62551f}.page{display:none;min-height:100svh;padding:24px clamp(18px,5vw,62px) 48px;flex-direction:column;gap:10px}.page.active{display:flex}.home{align-items:center;justify-content:center;text-align:center;gap:12px}.hero{width:min(280px,60vw);height:330px;filter:drop-shadow(0 16px 9px #6c503522)}h1{font-size:clamp(32px,4.2vw,48px);margin:0}.home p{font-size:22px;color:var(--muted);margin:0 0 15px}.btn{background:linear-gradient(180deg,#f6aa61,#e98543);color:#fff;font-weight:800;font-size:21px;padding:14px 34px;min-height:58px;border-radius:32px;box-shadow:0 6px 0 #c96634,0 8px 18px #c96e3d2b;transition:.15s}.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #c96634}.title{text-align:center;font-size:clamp(28px,3.3vw,38px);font-weight:900;margin-top:2px}.subtitle{text-align:center;color:var(--muted);font-size:19px;margin:0}.scene{position:relative;min-height:390px;flex:1;background:linear-gradient(180deg,#d9edf0 0%,#eaf2df 58%,#c8dfb9 58%,#b5d29f 100%);border-radius:34px;border:3px solid #fff;box-shadow:inset 0 -18px 0 #9fc28d33,0 8px 22px #735d4514;overflow:hidden}.scene:after{content:"";position:absolute;inset:auto 0 0;height:22%;background:#a8ca91;clip-path:ellipse(58% 100% at 50% 100%);opacity:.65}.sun{position:absolute;right:9%;top:8%;width:82px;height:82px;border-radius:50%;background:linear-gradient(145deg,#ffe9a8,#f6ce68);box-shadow:0 0 0 12px #ffe8a844}.cloud{position:absolute;left:12%;top:12%;width:120px;height:34px;background:#fffdf5aa;border-radius:30px}.cloud:before,.cloud:after{content:"";position:absolute;background:#fffdf5aa;border-radius:50%}.cloud:before{width:48px;height:48px;left:18px;top:-20px}.cloud:after{width:58px;height:58px;right:12px;top:-29px}.tree{position:absolute;left:5%;bottom:25%;width:100px;height:150px}.tree:before{content:"";position:absolute;left:42px;bottom:0;width:17px;height:76px;background:#9a6c4c;border-radius:12px}.tree:after{content:"";position:absolute;left:0;top:5px;width:100px;height:90px;background:radial-gradient(circle at 35% 35%,#c9dfba 0 18%,#a9cb9c 19% 100%);border-radius:55% 45% 48% 52%;box-shadow:24px 20px 0 #b8d3a9}.bubble{position:absolute;left:50%;top:17px;transform:translateX(-50%);z-index:10;background:#fffdf8eF;border:2px solid #fff;border-radius:24px;padding:11px 22px;font-size:21px;font-weight:700;box-shadow:0 7px 18px #695a4d18;text-align:center;white-space:nowrap}.char{position:absolute;width:225px;height:290px;z-index:5;cursor:pointer;transition:filter .15s}.char svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 13px 7px #574b4027)}.char:hover{filter:brightness(1.03)}.char.tap{animation:pop .42s cubic-bezier(.2,.8,.2,1)}@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.09) translateY(-12px) rotate(-2deg)}70%{transform:scale(.98) translateY(2px) rotate(1deg)}100%{transform:scale(1)}}.bearPos{left:19%;bottom:4%}.rabbitPos{right:18%;bottom:5%}.bearCorner{left:7%;bottom:0}.rabbitRight{right:7%;bottom:6%}.fox{position:absolute;right:3%;bottom:4%;width:165px;height:215px;z-index:8;cursor:pointer}.fox svg{width:100%;height:100%;filter:drop-shadow(0 11px 6px #574b4027)}.fox.tap{animation:foxPop .48s ease}@keyframes foxPop{0%{transform:scale(1)}35%{transform:translateY(-16px) rotate(-5deg) scale(1.08)}65%{transform:translateY(2px) rotate(3deg) scale(.98)}100%{transform:scale(1)}}.ball{position:absolute;left:49%;bottom:26%;width:76px;height:76px;z-index:9;cursor:pointer}.ball svg{width:100%;height:100%;filter:drop-shadow(0 8px 5px #574b4030)}.ball.tap{animation:ballPop .5s ease}@keyframes ballPop{0%{transform:scale(1) rotate(0)}45%{transform:scale(1.22) rotate(170deg)}100%{transform:scale(1) rotate(360deg)}}.hint{background:#fffdf8d9;border-radius:20px;padding:10px 16px;text-align:center;font-size:19px;box-shadow:0 3px 12px #66584d12}.choices{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.choice{min-height:112px;background:#fffdf8;border:3px solid transparent;border-radius:25px;box-shadow:0 6px 14px #6b594818;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;font-weight:800;font-size:22px;transition:.15s}.choice .emoji{font-size:43px}.choice.selected{border-color:var(--fox);background:#fff3e3;transform:translateY(-4px);box-shadow:0 9px 18px #d9793525}.choice:active{transform:scale(.97)}.foxText{background:#fffdf8;border:2px solid #f1e4d7;border-radius:23px;padding:12px 18px;text-align:center;font-size:20px;line-height:1.45;box-shadow:0 4px 12px #6b594812}.miniActions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.audioBtn{background:#fffdf8;border:2px solid #ead8c7;border-radius:24px;padding:9px 15px;font-size:18px;font-weight:700;box-shadow:0 4px 10px #6b594812}.audioBtn:active{transform:scale(.96)}.build{display:grid;grid-template-columns:1fr 1fr;gap:14px}.buildCard{background:#fffdf8;border:3px solid transparent;border-radius:27px;min-height:120px;padding:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 6px 15px #6b594818;font-size:22px;font-weight:800;transition:.15s}.buildCard.selected{border-color:var(--fox);background:#fff3e3;transform:translateY(-4px)}.buildCard .emoji{font-size:40px}.sentence{background:#fff0dc;border-radius:25px;border:2px solid #f2d2b0;text-align:center;padding:14px 20px;font-size:clamp(22px,2.8vw,30px);font-weight:800;line-height:1.5;min-height:75px}.sentence span{color:#d96f36}.solutions{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.solution{background:#fffdf8;border:3px solid transparent;border-radius:28px;min-height:205px;padding:18px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;font-size:22px;font-weight:900;box-shadow:0 7px 17px #6b594818;transition:.15s}.solution .emoji{font-size:56px}.solution.selected{border-color:var(--fox);background:#fff3e3;transform:translateY(-5px)}.result{background:#fffdf8;border-radius:24px;padding:13px 18px;text-align:center;font-size:20px;line-height:1.5;box-shadow:0 4px 12px #6b594812}.summary{align-items:center;justify-content:center;text-align:center}.summary .foxBig{width:220px;height:275px}.summary h2{font-size:34px;margin:0}.learn{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.learn span{background:#fffdf8;border-radius:20px;padding:10px 15px;font-size:19px;box-shadow:0 4px 12px #6b594812}.stars{font-size:42px;letter-spacing:5px}.hide{display:none!important}@media(max-width:720px){.page{padding:20px 14px 42px}.scene{min-height:430px;border-radius:27px}.bubble{font-size:17px;white-space:normal;width:78%}.char{width:165px;height:215px}.bearPos{left:4%;bottom:4%}.rabbitPos{right:3%;bottom:5%}.bearCorner{left:-2%;bottom:0}.rabbitRight{right:-2%;bottom:5%}.fox{width:115px;height:150px;right:1%;bottom:3%}.ball{width:58px;height:58px;left:48%}.choices{grid-template-columns:1fr 1fr}.choice{min-height:100px;font-size:19px}.build{grid-template-columns:1fr 1fr}.buildCard{min-height:110px;font-size:18px}.solutions{grid-template-columns:1fr}.solution{min-height:118px;flex-direction:row;justify-content:flex-start;padding-left:25px}.solution .emoji{font-size:45px}.title{font-size:28px}.subtitle{font-size:17px}.foxText{font-size:18px}}
 </style>
 </head>
 <body>
+<!-- Reusable full-body character IPs. The visual language intentionally uses rounded proportions, layered shading, clear silhouettes and exaggerated expressions. -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="foxBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb36b"/><stop offset="1" stop-color="#df7438"/></linearGradient>
+<linearGradient id="bearBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c99670"/><stop offset="1" stop-color="#a66c4b"/></linearGradient>
+<linearGradient id="rabbitBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff8ef"/><stop offset="1" stop-color="#dfd1c2"/></linearGradient>
+<filter id="soft"><feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#514742" flood-opacity=".18"/></filter>
+<symbol id="foxFull" viewBox="0 0 240 300">
+ <g filter="url(#soft)">
+  <path d="M45 190 Q18 163 28 135 Q42 115 67 147 Q76 164 68 193Z" fill="url(#foxBody)" stroke="#593f34" stroke-width="4"/>
+  <path d="M60 185 Q47 220 54 266 Q87 286 120 273 Q153 286 186 266 Q193 220 180 185 Q160 155 120 158 Q80 155 60 185Z" fill="url(#foxBody)" stroke="#593f34" stroke-width="4"/>
+  <path d="M78 183 Q120 165 162 183 L164 265 Q120 279 76 265Z" fill="#8fb5ac" stroke="#593f34" stroke-width="3"/>
+  <path d="M77 181 Q70 150 79 115 Q88 74 120 70 Q152 74 161 115 Q170 150 163 181 Q149 202 120 204 Q91 202 77 181Z" fill="url(#foxBody)" stroke="#593f34" stroke-width="4"/>
+  <path d="M82 126 L66 39 Q64 25 78 35 L111 62 L120 48 L129 62 L162 35 Q176 25 174 39 L158 126 Q151 164 120 168 Q89 164 82 126Z" fill="url(#foxBody)" stroke="#593f34" stroke-width="4"/>
+  <path d="M91 112 Q120 143 149 112 Q142 154 120 157 Q98 154 91 112Z" fill="#fff7ed"/>
+  <ellipse cx="103" cy="103" rx="7" ry="9" fill="#493f3a"/><ellipse cx="137" cy="103" rx="7" ry="9" fill="#493f3a"/>
+  <circle cx="101" cy="100" r="2.5" fill="#fff"/><circle cx="135" cy="100" r="2.5" fill="#fff"/>
+  <path d="M113 119 Q120 114 127 119 Q120 128 113 119Z" fill="#493f3a"/>
+  <path d="M111 132 Q120 140 129 132" fill="none" stroke="#593f34" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M79 192 Q52 204 39 231" fill="none" stroke="#593f34" stroke-width="11" stroke-linecap="round"/><path d="M161 192 Q188 204 201 231" fill="none" stroke="#593f34" stroke-width="11" stroke-linecap="round"/>
+  <path d="M91 267 L82 288 M149 267 L158 288" stroke="#593f34" stroke-width="11" stroke-linecap="round"/>
+ </g>
+</symbol>
+<symbol id="bearFull" viewBox="0 0 200 250">
+ <g filter="url(#soft)">
+  <circle cx="52" cy="50" r="30" fill="url(#bearBody)" stroke="#593f34" stroke-width="4"/><circle cx="148" cy="50" r="30" fill="url(#bearBody)" stroke="#593f34" stroke-width="4"/>
+  <ellipse cx="100" cy="177" rx="66" ry="68" fill="url(#bearBody)" stroke="#593f34" stroke-width="4"/>
+  <circle cx="100" cy="92" r="59" fill="url(#bearBody)" stroke="#593f34" stroke-width="4"/>
+  <ellipse cx="100" cy="108" rx="31" ry="24" fill="#f5dfc9"/>
+  <circle cx="78" cy="87" r="7" fill="#493f3a"/><circle cx="122" cy="87" r="7" fill="#493f3a"/>
+  <circle cx="76" cy="84" r="2.5" fill="#fff"/><circle cx="120" cy="84" r="2.5" fill="#fff"/>
+  <ellipse cx="100" cy="104" rx="8" ry="6" fill="#493f3a"/><path d="M88 119 Q100 130 112 119" fill="none" stroke="#593f34" stroke-width="4" stroke-linecap="round"/>
+  <path d="M54 155 Q25 173 18 203" fill="none" stroke="#593f34" stroke-width="13" stroke-linecap="round"/><path d="M146 155 Q175 173 182 203" fill="none" stroke="#593f34" stroke-width="13" stroke-linecap="round"/>
+  <path d="M77 230 L69 248 M123 230 L131 248" stroke="#593f34" stroke-width="13" stroke-linecap="round"/>
+ </g>
+</symbol>
+<symbol id="bearSad" viewBox="0 0 200 250">
+ <use href="#bearFull"/>
+ <path d="M70 88 Q79 82 87 88 M113 88 Q121 82 130 88" fill="none" stroke="#593f34" stroke-width="4" stroke-linecap="round"/>
+ <path d="M88 121 Q100 112 112 121" fill="none" stroke="#593f34" stroke-width="4"/>
+ <path d="M100 131 Q94 142 100 148 Q106 142 100 131Z" fill="#9ec8df"/>
+</symbol>
+<symbol id="bearAngry" viewBox="0 0 200 250">
+ <use href="#bearFull"/>
+ <path d="M68 84 L88 91 M112 91 L132 84" stroke="#593f34" stroke-width="5" stroke-linecap="round"/>
+ <path d="M87 122 Q100 108 113 122" fill="none" stroke="#593f34" stroke-width="5"/>
+</symbol>
+<symbol id="rabbitFull" viewBox="0 0 200 250">
+ <g filter="url(#soft)">
+  <path d="M65 66 Q29 5 55 13 Q78 20 82 68Z" fill="url(#rabbitBody)" stroke="#593f34" stroke-width="4"/><path d="M135 66 Q171 5 145 13 Q122 20 118 68Z" fill="url(#rabbitBody)" stroke="#593f34" stroke-width="4"/>
+  <path d="M72 30 Q57 20 58 48 Q62 62 75 70" fill="#e9b0b5" opacity=".75"/><path d="M128 30 Q143 20 142 48 Q138 62 125 70" fill="#e9b0b5" opacity=".75"/>
+  <ellipse cx="100" cy="179" rx="58" ry="65" fill="url(#rabbitBody)" stroke="#593f34" stroke-width="4"/><ellipse cx="100" cy="94" rx="48" ry="53" fill="url(#rabbitBody)" stroke="#593f34" stroke-width="4"/>
+  <ellipse cx="100" cy="111" rx="25" ry="20" fill="#fffaf5"/><circle cx="82" cy="91" r="6"/><circle cx="118" cy="91" r="6"/><circle cx="80" cy="89" r="2" fill="#fff"/><circle cx="116" cy="89" r="2" fill="#fff"/>
+  <path d="M94 106 Q100 101 106 106 Q100 114 94 106Z" fill="#493f3a"/><path d="M91 119 Q100 126 109 119" fill="none" stroke="#593f34" stroke-width="4" stroke-linecap="round"/>
+  <path d="M56 158 Q28 176 20 205" fill="none" stroke="#593f34" stroke-width="12" stroke-linecap="round"/><path d="M144 158 Q172 176 180 205" fill="none" stroke="#593f34" stroke-width="12" stroke-linecap="round"/><path d="M78 232 L71 248 M122 232 L129 248" stroke="#593f34" stroke-width="12" stroke-linecap="round"/>
+ </g>
+</symbol>
+<symbol id="rabbitSad" viewBox="0 0 200 250"><use href="#rabbitFull"/><path d="M73 91 Q82 84 90 91 M110 91 Q118 84 127 91" fill="none" stroke="#593f34" stroke-width="4"/><path d="M91 120 Q100 113 109 120" fill="none" stroke="#593f34" stroke-width="4"/><path d="M100 130 Q94 141 100 147 Q106 141 100 130Z" fill="#9ec8df"/></symbol>
+</defs></svg>
 <div id="app">
-
 <section class="page home active" id="p1">
-  <svg class="heroFox" viewBox="0 0 240 300" aria-label="小狐">
-    <use href="#foxFull"></use>
-  </svg>
-  <h1>小狐的心情故事</h1>
-  <p>你好，我是小狐</p>
-  <button class="btn" onclick="startStory()">🔊 开始故事</button>
+ <svg class="hero" viewBox="0 0 240 300"><use href="#foxFull"/></svg>
+ <h1>小狐的心情故事</h1><p>你好，我是小狐</p><button class="btn" onclick="startStory()">🔊 开始故事</button>
 </section>
-
-<section class="page story" id="p2">
-  <div class="title">故事开始</div>
-  <p class="subtitle">下午，幼儿园的操场上</p>
-  <div class="scene">
-    <div class="sun"></div><div class="cloud"></div><div class="tree"></div><div class="ground"></div>
-    <div class="bubble">小熊和小兔一起玩球。</div>
-    <div class="character bear happy" onclick="characterTap('bear2','小熊：一起玩球真开心！',this)"><svg viewBox="0 0 200 250"><use href="#bearFull"></use></svg></div>
-    <div class="character rabbit happy" onclick="characterTap('rabbit2','小兔：把球传给我吧！',this)"><svg viewBox="0 0 200 250"><use href="#rabbitFull"></use></svg></div>
-    <div class="ball" onclick="speak('球滚过来啦！');this.animate([{transform:'rotate(0)'},{transform:'rotate(360deg)'}],{duration:450})"><svg viewBox="0 0 70 70"><circle cx="35" cy="35" r="29" fill="#fffdf8" stroke="#514742" stroke-width="3"/><path d="M26 21L36 16L47 24L43 36L30 36Z" fill="#9dbab0"/><path d="M26 21L16 31M47 24L57 34M30 36L22 50M43 36L51 51" stroke="#514742" stroke-width="3"/></svg></div>
-  </div>
-  <button class="btn next" onclick="go(3,'小熊好像发生了一点变化，我们一起看看。')">继续看看</button>
+<section class="page" id="p2">
+ <div class="title">故事开始</div><div class="subtitle">下午，幼儿园的操场上</div>
+ <div class="scene">
+  <div class="sun"></div><div class="cloud"></div><div class="tree"></div><div class="bubble">小熊和小兔一起玩球。</div>
+  <div class="char bearPos" onclick="tapChar(this,'小熊：一起玩球真开心！')"><svg viewBox="0 0 200 250"><use href="#bearFull"/></svg></div>
+  <div class="char rabbitPos" onclick="tapChar(this,'小兔：把球传给我吧！')"><svg viewBox="0 0 200 250"><use href="#rabbitFull"/></svg></div>
+  <div class="ball" onclick="tapBall(this)"><svg viewBox="0 0 70 70"><circle cx="35" cy="35" r="29" fill="#fff" stroke="#593f34" stroke-width="3"/><path d="M26 21L36 16L47 24L43 36L30 36Z" fill="#91b9af"/><path d="M26 21L16 31M47 24L57 34M30 36L22 50M43 36L51 51" stroke="#593f34" stroke-width="3"/></svg></div>
+ </div><div class="hint">点点小熊、小兔或球，听听他们说什么。</div><button class="btn" onclick="go(3,'小熊好像有点不一样了，我们一起看看。')">继续看看</button>
 </section>
-
-<section class="page story" id="p3">
-  <div class="title">小熊怎么了？</div>
-  <p class="subtitle">你发现小熊坐到了旁边</p>
-  <div class="scene">
-    <div class="ground"></div>
-    <div class="bubble">小熊没有拿到球，低着头坐在一边。</div>
-    <div class="character corner bear sad" onclick="characterTap('bear3','小熊：我也想玩球……',this)"><svg viewBox="0 0 200 250"><use href="#bearSad"></use></svg></div>
-    <div class="character play-right rabbit happy" onclick="characterTap('rabbit3','小兔：我还在玩球呢！',this)"><svg viewBox="0 0 200 250"><use href="#rabbitFull"></use></svg></div>
-    <div class="ball" style="left:auto;right:21%;bottom:29%"><svg viewBox="0 0 70 70"><circle cx="35" cy="35" r="29" fill="#fffdf8" stroke="#514742" stroke-width="3"/><path d="M26 21L36 16L47 24L43 36L30 36Z" fill="#9dbab0"/><path d="M26 21L16 31M47 24L57 34M30 36L22 50M43 36L51 51" stroke="#514742" stroke-width="3"/></svg></div>
-    <div class="fox-guide" onclick="foxTap(this,'你发现了吗？小熊好像和刚才不一样了。')"><svg viewBox="0 0 240 300"><use href="#foxFull"></use></svg></div>
-  </div>
-  <div class="feedback" id="p3feedback">点一个你觉得小熊可能有的感觉。</div>
-  <div class="choice-wrap">
-    <button class="choice" onclick="emotion('生气',this)"><span class="icon">😡</span>生气</button>
-    <button class="choice" onclick="emotion('难过',this)"><span class="icon">😢</span>难过</button>
-    <button class="choice" onclick="emotion('委屈',this)"><span class="icon">😞</span>委屈</button>
-    <button class="choice" onclick="emotion('不知道',this)"><span class="icon">🤔</span>不知道</button>
-  </div>
-  <button class="btn next hide" id="p3next" onclick="go(4,'我们来帮小熊把感觉说出来。')">继续</button>
+<section class="page" id="p3">
+ <div class="title">小熊怎么了？</div><div class="subtitle">小熊没有拿到球，坐到了一边</div>
+ <div class="scene">
+  <div class="ground"></div><div class="bubble">小熊低着头，坐在一边。</div>
+  <div class="char bearCorner" onclick="tapChar(this,'小熊：我也想玩球……')"><svg viewBox="0 0 200 250"><use href="#bearSad"/></svg></div>
+  <div class="char rabbitRight" onclick="tapChar(this,'小兔：我还在玩球呢！')"><svg viewBox="0 0 200 250"><use href="#rabbitFull"/></svg></div>
+  <div class="ball" style="left:auto;right:19%;bottom:28%"><svg viewBox="0 0 70 70"><circle cx="35" cy="35" r="29" fill="#fff" stroke="#593f34" stroke-width="3"/><path d="M26 21L36 16L47 24L43 36L30 36Z" fill="#91b9af"/><path d="M26 21L16 31M47 24L57 34M30 36L22 50M43 36L51 51" stroke="#593f34" stroke-width="3"/></svg></div>
+  <div class="fox" onclick="foxTap(this,'你发现了吗？小熊好像有一点不开心。')"><svg viewBox="0 0 240 300"><use href="#foxFull"/></svg></div>
+ </div>
+ <div class="foxText" id="p3text">小狐：你觉得小熊现在是什么感觉？</div>
+ <div class="choices">
+  <button class="choice" onclick="emotion('生气',this)"><span class="emoji">😠</span>生气</button><button class="choice" onclick="emotion('难过',this)"><span class="emoji">😢</span>难过</button><button class="choice" onclick="emotion('委屈',this)"><span class="emoji">🥺</span>委屈</button><button class="choice" onclick="emotion('不知道',this)"><span class="emoji">🤔</span>不知道</button>
+ </div><button class="btn hide" id="p3next" onclick="go(4,'我们帮小熊把心里的话说出来。')">继续</button>
 </section>
-
-<section class="page story" id="p4">
-  <div class="title">帮小熊说出来</div>
-  <p class="subtitle">点一点击一下，帮小熊把感觉说出来</p>
-  <div class="scene" style="flex:none;height:205px;min-height:205px">
-    <div class="ground"></div>
-    <div class="character bear sad talking" style="bottom:-6%;left:32%;width:150px;height:200px" onclick="characterTap('bear4','小熊：我想把我的感觉说出来。',this)"><svg viewBox="0 0 200 250"><use href="#bearSad"></use></svg></div>
-    <div class="fox-guide" style="right:7%;bottom:2%;width:115px;height:145px" onclick="foxTap(this,'试试看：我感到……因为……')"><svg viewBox="0 0 240 300"><use href="#foxFull"></use></svg></div>
-  </div>
-  <p class="helper">先选感觉，再选原因。</p>
-  <div class="interaction">
-    <button class="inter-card" id="emoChoice" onclick="pickEmotionWord(this)"><span class="big">😞</span><strong>我感到有一点委屈</strong><small>点我听一听</small></button>
-    <button class="inter-card" id="reasonChoice" onclick="pickReasonWord(this)"><span class="big">⚽</span><strong>因为我也想玩球</strong><small>点我听一听</small></button>
-  </div>
-  <div class="sentence" id="sentence">我感到……</div>
-  <button class="btn next" id="speakBtn" onclick="speakFeeling()">🔊 听小熊怎么说</button>
-  <div class="hide" id="p4result">
-    <div class="sentence">我感到有一点委屈，因为我也想玩球。<br><b>我们可以一起玩吗？</b></div>
-    <div class="feedback">说出感觉，也告诉别人自己的需要，就能一起想办法。</div>
-    <button class="btn next" onclick="go(5,'可是，小熊后来还是很生气……')">继续</button>
-  </div>
+<section class="page" id="p4">
+ <div class="title">帮小熊说出来</div><div class="subtitle">点一点，帮小熊把话说完整</div>
+ <div class="scene" style="min-height:245px;flex:none">
+  <div class="ground"></div><div class="char" style="left:31%;bottom:-7%;width:205px;height:255px"><svg viewBox="0 0 200 250"><use href="#bearSad"/></svg></div>
+  <div class="fox" onclick="foxTap(this,'我们先说感觉，再说为什么。')"><svg viewBox="0 0 240 300"><use href="#foxFull"/></svg></div>
+ </div>
+ <div class="build">
+  <button class="buildCard" id="emoBtn" onclick="chooseBuild('emo')"><span class="emoji">🥺</span>我感到一点委屈</button>
+  <button class="buildCard" id="reasonBtn" onclick="chooseBuild('reason')"><span class="emoji">⚽</span>因为我也想玩球</button>
+ </div>
+ <div class="sentence" id="sentence">我感到……</div>
+ <div class="miniActions"><button class="audioBtn" onclick="readSentence()">🔊 听一听</button><button class="audioBtn hide" id="requestBtn" onclick="showRequest()">💬 说出来</button></div>
+ <div class="foxText hide" id="requestText">“我们可以一起玩吗？”</div>
+ <button class="btn hide" id="p4next" onclick="go(5,'我们再看看，小熊生气以后发生了什么。')">继续</button>
 </section>
-
-<section class="page story" id="p5">
-  <div class="title">情绪可以出现，但行为需要选择</div>
-  <p class="subtitle">小熊很生气，可是推人之后发生了什么？</p>
-  <div class="scene">
-    <div class="ground"></div>
-    <div class="character bear angry cry" style="left:21%;bottom:7%" onclick="characterTap('bear5','小熊：我还是很生气……可是我也不开心。',this)"><svg viewBox="0 0 200 250"><use href="#bearAngry"></use></svg></div>
-    <div class="character rabbit sad cry" style="right:21%;bottom:7%" onclick="characterTap('rabbit5','小兔：我被推了，好难过。',this)"><svg viewBox="0 0 200 250"><use href="#rabbitSad"></use></svg></div>
-    <div class="fox-guide" onclick="foxTap(this,'生气的感觉可以出现，但是我们可以选择怎么做。')"><svg viewBox="0 0 240 300"><use href="#foxFull"></use></svg></div>
-  </div>
-  <div class="feedback">生气没有错。<b>伤害别人不是解决办法。</b><br>我们可以换一种方式。</div>
-  <button class="btn next" onclick="go(6,'如果重新来一次，小熊可以怎么做呢？')">再试一次</button>
+<section class="page" id="p5">
+ <div class="title">生气的时候，可以怎么做？</div><div class="subtitle">先看看小熊做了什么</div>
+ <div class="scene">
+  <div class="ground"></div><div class="bubble">小熊推了小兔。</div>
+  <div class="char bearPos" id="pushBear" onclick="tapChar(this,'小熊：我真的好生气！')"><svg viewBox="0 0 200 250"><use href="#bearAngry"/></svg></div>
+  <div class="char rabbitPos" id="sadRabbit" onclick="tapChar(this,'小兔：呜……我好难过。')"><svg viewBox="0 0 200 250"><use href="#rabbitSad"/></svg></div>
+  <div class="fox" onclick="foxTap(this,'生气的时候，我们可以怎么做？')"><svg viewBox="0 0 240 300"><use href="#foxFull"/></svg></div>
+ </div>
+ <div class="foxText" id="p5text">小兔哭了，小熊自己也不开心了。</div>
+ <div class="miniActions"><button class="audioBtn" onclick="speak('生气的时候，我们可以先停一停。')">🔊 先听小狐说</button></div>
+ <button class="btn" onclick="go(6,'如果重新来一次，小熊可以怎么做呢？')">再试一次</button>
 </section>
-
-<section class="page story" id="p6">
-  <div class="title">如果重新来一次？</div>
-  <p class="subtitle">点一个办法，看看会发生什么。</p>
-  <div class="solution-grid">
-    <button class="solution" onclick="chooseSolution(1,this)"><span class="emoji">😡</span><span>抢回来</span></button>
-    <button class="solution" onclick="chooseSolution(2,this)"><span class="emoji">💬</span><span>表达感受</span></button>
-    <button class="solution" onclick="chooseSolution(3,this)"><span class="emoji">🙋</span><span>找老师帮助</span></button>
-  </div>
-  <div class="result hide" id="solResult"></div>
-  <button class="btn next hide" id="p6next" onclick="go(7,'今天你学会了什么？')">继续</button>
+<section class="page" id="p6">
+ <div class="title">如果重新来一次？</div><div class="subtitle">你想帮小熊选哪一个？</div>
+ <div class="solutions">
+  <button class="solution" onclick="solution(1,this)"><span class="emoji">✋</span>先停一停</button>
+  <button class="solution" onclick="solution(2,this)"><span class="emoji">💬</span>说出自己的感觉</button>
+  <button class="solution" onclick="solution(3,this)"><span class="emoji">🙋</span>找老师帮忙</button>
+ </div>
+ <div class="result hide" id="result"></div><button class="btn hide" id="p6next" onclick="go(7,'你今天学会了帮助小熊的好办法。')">继续</button>
 </section>
-
 <section class="page summary" id="p7">
-  <div class="fox-guide" style="position:relative;right:auto;bottom:auto;width:170px;height:215px;cursor:pointer" onclick="foxTap(this,'你做得很棒！')"><svg viewBox="0 0 240 300"><use href="#foxFull"></use></svg></div>
-  <h2>今天你帮助小熊学会：</h2>
-  <div class="learn"><span class="pill">👀 看见感觉</span><span class="pill">💬 说出想法</span><span class="pill">🌱 找到办法</span></div>
-  <div class="stars">⭐ ⭐ ⭐</div>
-  <button class="btn" onclick="go(1,'你好，我是小狐。')">再玩一次</button>
+ <svg class="foxBig" viewBox="0 0 240 300"><use href="#foxFull"/></svg><h2>今天你帮助小熊学会了：</h2>
+ <div class="learn"><span>👀 看见感觉</span><span>💬 说出想法</span><span>🌱 找到办法</span></div><div class="stars">⭐ ⭐ ⭐</div><button class="btn" onclick="go(1,'你好，我是小狐。')">再玩一次</button>
 </section>
-
-<svg width="0" height="0" style="position:absolute">
-<defs>
-  <symbol id="foxFull" viewBox="0 0 240 300">
-    <path d="M178 205Q229 181 229 223Q227 259 186 249Q205 235 178 205Z" fill="#e49a5a" stroke="#514742" stroke-width="4"/>
-    <path d="M72 184Q62 166 72 150Q91 139 120 143Q149 139 168 150Q178 166 168 184L174 266Q120 287 66 266Z" fill="#9dbab0" stroke="#514742" stroke-width="4"/>
-    <path d="M78 189L58 224M162 189L182 224" stroke="#e49a5a" stroke-width="18" stroke-linecap="round"/>
-    <path d="M94 263L87 284M146 263L153 284" stroke="#e49a5a" stroke-width="18" stroke-linecap="round"/>
-    <path d="M48 112Q34 25 91 58L120 31L149 58Q206 25 192 112Q192 171 120 177Q48 171 48 112Z" fill="#e49a5a" stroke="#514742" stroke-width="5"/>
-    <path d="M64 113Q86 159 120 160Q154 159 176 113Q163 163 120 169Q77 163 64 113Z" fill="#fffdf8"/>
-    <path d="M67 83Q79 72 91 83M149 83Q161 72 173 83" fill="none" stroke="#514742" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="82" cy="94" r="6" fill="#514742"/><circle cx="158" cy="94" r="6" fill="#514742"/>
-    <path d="M111 108Q120 101 129 108Q120 119 111 108Z" fill="#514742"/>
-    <path d="M105 128Q120 140 135 128" fill="none" stroke="#514742" stroke-width="4" stroke-linecap="round"/>
-    <path d="M77 184Q120 197 163 184L169 205Q120 220 71 205Z" fill="#71978d" opacity=".8"/>
-  </symbol>
-  <symbol id="bearFull" viewBox="0 0 200 250">
-    <circle cx="55" cy="55" r="28" fill="#b97d50" stroke="#514742" stroke-width="4"/><circle cx="145" cy="55" r="28" fill="#b97d50" stroke="#514742" stroke-width="4"/>
-    <circle cx="100" cy="87" r="63" fill="#b97d50" stroke="#514742" stroke-width="4"/>
-    <ellipse cx="100" cy="108" rx="34" ry="25" fill="#f7eadc"/>
-    <circle cx="78" cy="83" r="6"/><circle cx="122" cy="83" r="6"/><ellipse cx="100" cy="101" rx="7" ry="5" fill="#514742"/>
-    <path d="M91 116Q100 125 109 116" fill="none" stroke="#514742" stroke-width="4" stroke-linecap="round"/>
-    <path d="M57 143Q100 128 143 143L150 220Q100 240 50 220Z" fill="#b97d50" stroke="#514742" stroke-width="4"/>
-    <ellipse cx="100" cy="184" rx="29" ry="34" fill="#f0dcc8" opacity=".9"/>
-    <path d="M60 157L35 181M140 157L165 181M78 221L70 242M122 221L130 242" stroke="#b97d50" stroke-width="17" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="bearSad" viewBox="0 0 200 250">
-    <use href="#bearFull"/>
-    <path d="M75 84Q83 78 91 84M109 84Q117 78 125 84" fill="none" stroke="#514742" stroke-width="4"/>
-    <path d="M90 119Q100 110 110 119" fill="none" stroke="#514742" stroke-width="4"/>
-  </symbol>
-  <symbol id="bearAngry" viewBox="0 0 200 250">
-    <use href="#bearFull"/>
-    <path d="M72 79L91 87M109 87L128 79" stroke="#514742" stroke-width="5" stroke-linecap="round"/>
-    <path d="M88 120Q100 109 112 120" fill="none" stroke="#514742" stroke-width="4"/>
-  </symbol>
-  <symbol id="rabbitFull" viewBox="0 0 200 250">
-    <path d="M75 62Q40 2 66 8Q88 14 93 65Z" fill="#f1e8df" stroke="#514742" stroke-width="4"/><path d="M125 62Q160 2 134 8Q112 14 107 65Z" fill="#f1e8df" stroke="#514742" stroke-width="4"/>
-    <path d="M67 48Q58 18 70 20Q86 25 91 58Z" fill="#e6b4b4"/><path d="M133 48Q142 18 130 20Q114 25 109 58Z" fill="#e6b4b4"/>
-    <ellipse cx="100" cy="91" rx="50" ry="52" fill="#f1e8df" stroke="#514742" stroke-width="4"/>
-    <ellipse cx="100" cy="110" rx="25" ry="18" fill="#fffaf5"/>
-    <circle cx="82" cy="88" r="5"/><circle cx="118" cy="88" r="5"/><circle cx="100" cy="101" r="5" fill="#514742"/><path d="M92 113Q100 121 108 113" fill="none" stroke="#514742" stroke-width="4"/>
-    <path d="M59 146Q100 130 141 146L148 220Q100 239 52 220Z" fill="#f1e8df" stroke="#514742" stroke-width="4"/>
-    <ellipse cx="100" cy="185" rx="28" ry="34" fill="#fffaf5"/>
-    <path d="M62 160L37 183M138 160L163 183M80 221L72 242M120 221L128 242" stroke="#f1e8df" stroke-width="17" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="rabbitSad" viewBox="0 0 200 250">
-    <use href="#rabbitFull"/>
-    <path d="M75 89Q83 82 91 89M109 89Q117 82 125 89" fill="none" stroke="#514742" stroke-width="4"/>
-    <path d="M91 116Q100 109 109 116" fill="none" stroke="#514742" stroke-width="4"/>
-  </symbol>
-</defs>
-</svg>
 </div>
 <script>
-let audioCtx=null;
-function audio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
-function tone(freq=620,dur=.09,type='sine'){const c=audio(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.085,c.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+dur);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur+.02)}
-function clickSound(){tone(650,.07,'sine')}
-function goodSound(){tone(720,.08);setTimeout(()=>tone(920,.12),80)}
-function speak(text){clickSound();if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.88;u.pitch=1.08;speechSynthesis.speak(u)}}
-function go(n,voice){clickSound();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const page=document.getElementById('p'+n);page.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});if(voice)setTimeout(()=>speak(voice),220)}
-function startStory(){audio();goodSound();go(2,'下午，小熊和小兔一起玩球。')}
-function characterTap(id,text,el){clickSound();el.classList.remove('is-tapped');void el.offsetWidth;el.classList.add('is-tapped');setTimeout(()=>el.classList.remove('is-tapped'),500);speak(text)}
-function foxTap(el,text){clickSound();el.classList.remove('is-tapped');void el.offsetWidth;el.classList.add('is-tapped');setTimeout(()=>el.classList.remove('is-tapped'),500);speak(text)}
-function emotion(v,el){clickSound();document.querySelectorAll('#p3 .choice').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');const msg={生气:'你发现小熊可能很生气。',难过:'你发现小熊可能有一点难过。',委屈:'你发现小熊可能有一点委屈。',不知道:'没关系，我们可以继续看看。'}[v];document.getElementById('p3feedback').innerHTML=msg+' <button class="sound" onclick="event.stopPropagation();speak(\''+v+'\')">🔊</button>';speak(v);document.getElementById('p3next').classList.remove('hide')}
-let emotionPicked=false,reasonPicked=false;
-function pickEmotionWord(el){emotionPicked=true;el.classList.add('selected');clickSound();speak('我感到有一点委屈');updateSentence()}
-function pickReasonWord(el){reasonPicked=true;el.classList.add('selected');clickSound();speak('因为我也想玩球');updateSentence()}
-function updateSentence(){if(emotionPicked&&reasonPicked)document.getElementById('sentence').innerHTML='我感到有一点委屈，因为我也想玩球。';else if(emotionPicked)document.getElementById('sentence').innerHTML='我感到有一点委屈，因为……';else if(reasonPicked)document.getElementById('sentence').innerHTML='我感到……，因为我也想玩球。'}
-function speakFeeling(){if(!emotionPicked||!reasonPicked){speak('先点一点击，选好感觉和原因吧。');return}goodSound();speak('我感到有一点委屈，因为我也想玩球。我们可以一起玩吗？');document.getElementById('sentence').innerHTML='我感到有一点委屈，因为我也想玩球。<br><b>我们可以一起玩吗？</b>';document.getElementById('p4result').classList.remove('hide');document.getElementById('speakBtn').classList.add('hide')}
-function chooseSolution(n,el){clickSound();document.querySelectorAll('.solution').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');const r=document.getElementById('solResult'),next=document.getElementById('p6next');r.classList.remove('hide');next.classList.remove('hide');if(n===1){r.innerHTML='小熊拿到了球，可是小兔也难过了。<br>这个办法可能会让别人难过。';speak('小熊拿到了球，可是小兔也难过了。')}else if(n===2){r.innerHTML='小熊说：“我感到有一点委屈，因为我也想玩球。我们可以一起玩吗？”<br><b>小兔说：“可以呀！”</b>';goodSound();speak('我感到有一点委屈，因为我也想玩球。我们可以一起玩吗？')}else{r.innerHTML='老师听见了他们的想法，帮助两个小朋友一起想办法。<br>请别人帮助也是一个好办法。';speak('请别人帮助也是一个好办法。')}}
+let ctx=null;function audio(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}function tone(f=620,d=.09){const c=audio(),o=c.createOscillator(),g=c.createGain();o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.08,c.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d+.02)}function clickSound(){tone(650,.07)}function good(){tone(720,.08);setTimeout(()=>tone(920,.1),80)}function speak(t){clickSound();if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.88;u.pitch=1.08;speechSynthesis.speak(u)}}function go(n,voice){clickSound();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const p=document.getElementById('p'+n);p.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});if(voice)setTimeout(()=>speak(voice),180)}function startStory(){audio();good();go(2,'下午，幼儿园的操场上，小熊和小兔一起玩球。')}function tapChar(el,text){el.classList.remove('tap');void el.offsetWidth;el.classList.add('tap');good();speak(text)}function tapBall(el){el.classList.remove('tap');void el.offsetWidth;el.classList.add('tap');speak('球滚过来啦！')}function foxTap(el,text){el.classList.remove('tap');void el.offsetWidth;el.classList.add('tap');good();speak(text)}function emotion(v,el){clickSound();document.querySelectorAll('#p3 .choice').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');const m={生气:'你发现小熊可能有一点生气。',难过:'你发现小熊可能有一点难过。',委屈:'你发现小熊可能有一点委屈。',不知道:'没关系，我们可以再看看。'}[v];document.getElementById('p3text').textContent='小狐：'+m;speak(v);document.getElementById('p3next').classList.remove('hide')}function chooseBuild(which){clickSound();document.getElementById(which==='emo'?'emoBtn':'reasonBtn').classList.toggle('selected');const a=document.getElementById('emoBtn').classList.contains('selected'),b=document.getElementById('reasonBtn').classList.contains('selected');if(a&&b){document.getElementById('sentence').innerHTML='我感到<span>一点委屈</span>，因为<span>我也想玩球</span>。';document.getElementById('requestBtn').classList.remove('hide');good();speak('我感到一点委屈，因为我也想玩球。')}}function readSentence(){const s=document.getElementById('sentence').innerText;if(s==='我感到……')speak('先点上面的两个小卡片。');else speak(s)}function showRequest(){document.getElementById('requestText').classList.remove('hide');document.getElementById('p4next').classList.remove('hide');good();speak('我们可以一起玩吗？')}function solution(n,el){document.querySelectorAll('.solution').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');const r=document.getElementById('result');r.classList.remove('hide');document.getElementById('p6next').classList.remove('hide');if(n===1){r.innerHTML='小熊先停下来，不推人。<br>等心里没有那么急了，再说自己的感觉。';speak('小熊先停下来，不推人。')}if(n===2){r.innerHTML='小熊说：“我感到一点委屈，因为我也想玩球。我们可以一起玩吗？”<br>小兔说：“好呀！”';good();speak('我感到一点委屈，因为我也想玩球。我们可以一起玩吗？')}if(n===3){r.innerHTML='小熊可以请老师来帮忙。<br>不知道怎么办的时候，找大人帮忙也可以。';speak('不知道怎么办的时候，找大人帮忙也可以。')}}
 </script>
-</body>
-</html>
+</body></html>
