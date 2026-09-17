@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小狐的心情故事 - 互动Demo</title>
+    <title>小狐的心情故事</title>
     <style>
         :root {
-            --bg-color: #F4F6F0;
-            --fox-main: #ECA872;
-            --bear-brown: #C68B59;
-            --rabbit-white: #F9F7F5;
-            --vest-green: #A3C3B1;
-            --btn-coral: #E78B75;
-            --text-dark: #4A3E3D;
+            --bg-sky: #E3EEDD;
+            --bg-ground: #C9DBBF;
+            --text-dark: #3A3231;
+            --coral-btn: #F08A75;
         }
 
         * {
@@ -24,7 +21,7 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #2D2524;
+            background-color: #1F1B1A;
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
             height: 100vh;
             display: flex;
@@ -33,353 +30,347 @@
             overflow: hidden;
         }
 
-        #game-container {
+        /* 平板画幅 */
+        #game-window {
             width: 100vw;
             height: 56.25vw;
             max-width: 960px;
             max-height: 540px;
-            background: linear-gradient(180deg, #EBF3E8 0%, #FDF8EF 100%);
+            background: linear-gradient(180deg, var(--bg-sky) 0%, #FAF6EE 100%);
             position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-radius: 28px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
 
+        /* 自然背景 */
         .scenery {
             position: absolute;
             width: 100%;
             height: 100%;
-            z-index: 1;
             pointer-events: none;
         }
 
-        .ui-layer {
-            position: relative;
-            z-index: 10;
-            padding: 16px;
+        /* 极简顶栏 */
+        .top-bar {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            justify-content: space-between;
-        }
-
-        .title-badge {
-            font-size: 18px;
-            color: var(--text-dark);
-            font-weight: bold;
-            background: rgba(255,255,255,0.85);
-            padding: 6px 24px;
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-        }
-
-        /* 气泡与提示 */
-        .speech-bubble {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 14px 24px;
-            font-size: 18px;
-            color: var(--text-dark);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            position: relative;
-            max-width: 82%;
-            text-align: center;
-            line-height: 1.5;
-            transition: all 0.3s;
-            border: 2px solid #FFF;
-        }
-
-        /* 选项卡容器 (Branches) */
-        .options-container {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
+            justify-content: center;
             z-index: 20;
         }
 
-        .choice-btn {
-            background: white;
-            color: var(--text-dark);
-            border: 2px solid var(--btn-coral);
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 16px;
+        .speech-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 3px solid #FFF;
+            border-radius: 25px;
+            padding: 12px 28px;
+            font-size: 20px;
             font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: all 0.2s;
+            color: var(--text-dark);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+            text-align: center;
+            max-width: 80%;
+            transition: all 0.3s;
         }
 
-        .choice-btn:hover, .choice-btn:active {
-            background: var(--btn-coral);
-            color: white;
-            transform: scale(1.05);
-        }
-
+        /* 舞台与角色 */
         .stage {
             position: absolute;
             width: 100%;
-            height: 60%;
-            bottom: 60px;
-            z-index: 5;
+            height: 70%;
+            bottom: 40px;
+            z-index: 10;
         }
 
-        .character {
+        .role {
             position: absolute;
-            bottom: 0;
-            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        #fox { left: 6%; width: 150px; height: 180px; }
-        #bear { left: 45%; width: 160px; height: 190px; }
-        #rabbit { left: 75%; width: 120px; height: 170px; }
-        #ball {
-            position: absolute;
-            bottom: 15px;
-            left: 71%;
-            width: 32px;
-            height: 32px;
-            z-index: 6;
-            transition: all 0.6s ease;
-        }
-
-        /* 修正后的动物微动作规律 (错峰 + 减小幅度) */
-        .breath-fox { animation: foxBreathe 3.2s infinite ease-in-out; transform-origin: bottom center; }
-        .breath-bear { animation: bearBreathe 4.1s infinite ease-in-out 0.8s; transform-origin: bottom center; }
-        .breath-rabbit { animation: rabbitBreathe 2.7s infinite ease-in-out 0.4s; transform-origin: bottom center; }
-
-        @keyframes foxBreathe {
-            0%, 100% { transform: scale(1) translateY(0); }
-            50% { transform: scaleX(1.01) scaleY(0.98) translateY(1px); }
-        }
-
-        @keyframes bearBreathe {
-            0%, 100% { transform: scale(1) translateY(0); }
-            50% { transform: scaleX(1.015) scaleY(0.985) translateY(1px); }
-        }
-
-        @keyframes rabbitBreathe {
-            0%, 100% { transform: scale(1) translateY(0); }
-            50% { transform: scaleX(1.01) scaleY(0.97) translateY(2px); }
-        }
-
-        .action-btn {
-            background-color: var(--btn-coral);
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            padding: 10px 40px;
-            border-radius: 35px;
-            border: none;
+            bottom: 10px;
             cursor: pointer;
-            box-shadow: 0 4px 0 rgba(200, 100, 80, 0.3);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 角色位置 */
+        #fox-role { left: 5%; width: 160px; }
+        #bear-role { left: 42%; width: 175px; }
+        #rabbit-role { left: 72%; width: 135px; }
+        #ball-item { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 68%; 
+            width: 38px; 
+            z-index: 12;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        /* 儿童互动图标气泡 */
+        .interactive-icon {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FFF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: bounceIcon 1.2s infinite ease-in-out;
+            cursor: pointer;
+            z-index: 30;
+        }
+
+        @keyframes bounceIcon {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-8px); }
+        }
+
+        /* 自然微呼吸 */
+        .breath-fox { animation: animFox 4s infinite ease-in-out; }
+        .breath-bear { animation: animBear 4.8s infinite ease-in-out 0.5s; }
+        .breath-rabbit { animation: animRabbit 3.5s infinite ease-in-out 1s; }
+
+        @keyframes animFox {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            50% { transform: rotate(1deg) translateY(-2px); }
+        }
+        @keyframes animBear {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            50% { transform: rotate(-1deg) translateY(-1px); }
+        }
+        @keyframes animRabbit {
+            0%, 100% { transform: rotate(0deg) translateY(0); }
+            50% { transform: rotate(1.5deg) translateY(-2px); }
+        }
+
+        /* 大按键 */
+        .bottom-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            background: var(--coral-btn);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 12px 35px;
+            border-radius: 40px;
+            border: none;
+            box-shadow: 0 5px 0 #C86955;
+            cursor: pointer;
+            z-index: 25;
             transition: transform 0.1s;
         }
-
-        .action-btn:active { transform: translateY(3px); box-shadow: none; }
+        .bottom-btn:active { transform: translateY(4px); box-shadow: none; }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <svg class="scenery" viewBox="0 0 960 540" preserveAspectRatio="none">
-        <path d="M-50,430 Q200,390 500,440 T1000,410 L1000,600 L-50,600 Z" fill="#E2EBE0" />
-        <path d="M-50,470 Q300,440 700,480 T1000,450 L1000,600 L-50,600 Z" fill="#A3C3B1" opacity="0.4" />
+<div id="game-window">
+    <!-- 极简自然绘本草地背景 -->
+    <svg class="scenery" viewBox="0 0 960 540">
+        <path d="M-20,440 C200,410 450,460 1000,420 L1000,600 L-20,600 Z" fill="#D3E2C9" />
+        <path d="M-20,470 C300,450 650,480 1000,450 L1000,600 L-20,600 Z" fill="#B2CE9F" />
     </svg>
 
-    <div class="ui-layer">
-        <div class="title-badge" id="step-tag">1. 观察情境</div>
-
-        <div class="speech-bubble" id="dialogue">
-            幼儿园的下午，小兔正在玩球。小熊也想玩球，但他没有说出来...
+    <!-- 顶部极简语音故事卡 -->
+    <div class="top-bar">
+        <div class="speech-card" id="story-text">
+            下午，小兔在玩球，小熊也想玩...
         </div>
-
-        <div class="options-container" id="options" style="display: none;"></div>
-
-        <button class="action-btn" id="next-btn" onclick="handleNext()">下一步</button>
     </div>
 
+    <!-- 舞台角色 -->
     <div class="stage">
-        <!-- 小狐 (AI陪伴者) -->
-        <div class="character breath-fox" id="fox">
-            <svg viewBox="0 0 160 180" width="100%" height="100%">
-                <path d="M45,100 C45,85 105,85 105,100 L110,155 C110,165 40,165 40,155 Z" fill="#A3C3B1" />
-                <path d="M35,60 C35,35 125,35 125,60 C125,90 100,110 80,110 C60,110 35,90 35,60 Z" fill="#ECA872" />
-                <path d="M35,62 C55,65 65,100 80,100 C95,100 105,65 125,62 C120,95 95,110 80,110 C65,110 40,95 35,62 Z" fill="#FDF8EF" />
-                <circle cx="62" cy="62" r="4.5" fill="#4A3E3D" />
-                <circle cx="98" cy="62" r="4.5" fill="#4A3E3D" />
-                <ellipse cx="52" cy="72" rx="6" ry="3.5" fill="#F5B7B1" opacity="0.7" />
-                <ellipse cx="108" cy="72" rx="6" ry="3.5" fill="#F5B7B1" opacity="0.7" />
-                <circle cx="80" cy="72" r="3.5" fill="#4A3E3D" />
+        
+        <!-- 1. 小狐 (IP插画级: 流线型大头、手绘线条包边、暖色调) -->
+        <div class="role breath-fox" id="fox-role" onclick="tapRole('fox')">
+            <svg viewBox="0 0 160 200">
+                <!-- 蓬松尾巴 -->
+                <path d="M25,140 C5,100 20,60 45,75 C60,85 45,125 25,140 Z" fill="#E29456" stroke="#3A3231" stroke-width="3.5" />
+                <path d="M30,80 C20,68 32,62 45,75 Z" fill="#FAF6EE" />
+                <!-- 身体背心 -->
+                <path d="M48,110 C48,95 112,95 112,110 L118,175 C118,185 42,185 42,175 Z" fill="#95B8A4" stroke="#3A3231" stroke-width="3.5" />
+                <!-- 手臂 -->
+                <ellipse cx="44" cy="130" rx="9" ry="16" fill="#E29456" stroke="#3A3231" stroke-width="3" transform="rotate(15 44 130)" />
+                <ellipse cx="116" cy="130" rx="9" ry="16" fill="#E29456" stroke="#3A3231" stroke-width="3" transform="rotate(-15 116 130)" />
+                <!-- 大头 -->
+                <path d="M30,68 C30,32 130,32 130,68 C130,105 102,120 80,120 C58,120 30,105 30,68 Z" fill="#E29456" stroke="#3A3231" stroke-width="4" />
+                <!-- 白色白颊花纹 -->
+                <path d="M32,70 C50,75 62,110 80,110 C98,110 110,75 128,70 C122,102 98,118 80,118 C62,118 38,102 32,70 Z" fill="#FAF6EE" />
+                <!-- 润圆耳朵 -->
+                <path d="M42,42 C30,10 60,18 70,38 Z" fill="#E29456" stroke="#3A3231" stroke-width="3.5" />
+                <path d="M48,38 C38,18 58,22 64,36 Z" fill="#F0A8B8" />
+                <path d="M118,42 C130,10 100,18 90,38 Z" fill="#E29456" stroke="#3A3231" stroke-width="3.5" />
+                <path d="M112,38 C122,18 102,22 96,36 Z" fill="#F0A8B8" />
+                <!-- 五官 -->
+                <ellipse cx="62" cy="68" rx="4.5" ry="6.5" fill="#3A3231" />
+                <ellipse cx="98" cy="68" rx="4.5" ry="6.5" fill="#3A3231" />
+                <circle cx="64" cy="66" r="1.8" fill="#FFF" />
+                <circle cx="100" cy="66" r="1.8" fill="#FFF" />
+                <!-- 柔和腮红 -->
+                <ellipse cx="50" cy="78" rx="8" ry="4.5" fill="#F0A8B8" opacity="0.8" />
+                <ellipse cx="110" cy="78" rx="8" ry="4.5" fill="#F0A8B8" opacity="0.8" />
+                <!-- 鼻子微笑嘴 -->
+                <ellipse cx="80" cy="76" rx="4" ry="3" fill="#3A3231" />
+                <path d="M75,84 Q80,88 85,84" stroke="#3A3231" stroke-width="2.5" fill="none" stroke-linecap="round" />
             </svg>
         </div>
 
-        <!-- 小熊 (情绪角色) -->
-        <div class="character breath-bear" id="bear">
-            <svg viewBox="0 0 160 190" width="100%" height="100%">
-                <path d="M40,105 C40,90 120,90 120,105 L125,165 C125,175 35,175 35,165 Z" fill="#C68B59" />
-                <circle cx="80" cy="60" r="42" fill="#C68B59" />
-                <ellipse cx="80" cy="70" rx="20" ry="14" fill="#FDF8EF" />
-                <ellipse id="bear-eye-l" cx="64" cy="55" rx="3.5" ry="5" fill="#4A3E3D" />
-                <ellipse id="bear-eye-r" cx="96" cy="55" rx="3.5" ry="5" fill="#4A3E3D" />
-                <path id="bear-brow" d="M60,46 Q65,44 70,46 M90,46 Q95,44 100,46" stroke="#8D5B36" stroke-width="2.5" fill="none" />
+        <!-- 2. 小熊 (幼态暖棕、带表情转换) -->
+        <div class="role breath-bear" id="bear-role" onclick="tapRole('bear')">
+            <!-- 触控小气泡提示 -->
+            <div class="interactive-icon" id="bear-icon" style="display:none;" onclick="triggerBearChoice(event)">😡</div>
+            <svg viewBox="0 0 170 200">
+                <path d="M42,110 C42,92 128,92 128,110 L134,178 C134,188 36,188 36,178 Z" fill="#BA7A48" stroke="#3A3231" stroke-width="3.5" />
+                <ellipse cx="85" cy="148" rx="28" ry="22" fill="#FAF6EE" opacity="0.5" />
+                <!-- 圆头 -->
+                <circle cx="45" cy="40" r="16" fill="#BA7A48" stroke="#3A3231" stroke-width="3" />
+                <circle cx="45" cy="40" r="8" fill="#F0A8B8" />
+                <circle cx="125" cy="40" r="16" fill="#BA7A48" stroke="#3A3231" stroke-width="3" />
+                <circle cx="125" cy="40" r="8" fill="#F0A8B8" />
+                <circle cx="85" cy="68" r="44" fill="#BA7A48" stroke="#3A3231" stroke-width="4" />
+                <!-- 嘴套 -->
+                <ellipse cx="85" cy="78" rx="22" ry="16" fill="#FAF6EE" stroke="#3A3231" stroke-width="2.5" />
+                <!-- 眼神与眉毛 -->
+                <ellipse cx="66" cy="62" rx="4" ry="6" fill="#3A3231" />
+                <ellipse cx="104" cy="62" rx="4" ry="6" fill="#3A3231" />
+                <path id="bear-brow-path" d="M60,52 Q66,50 72,52 M98,52 Q104,50 110,52" stroke="#3A3231" stroke-width="3" fill="none" stroke-linecap="round" />
+                <ellipse cx="85" cy="73" rx="6" ry="4" fill="#3A3231" />
+                <path id="bear-mouth-path" d="M80,85 Q85,88 90,85" stroke="#3A3231" stroke-width="2.5" fill="none" stroke-linecap="round" />
             </svg>
         </div>
 
-        <!-- 小兔 (伙伴) -->
-        <div class="character breath-rabbit" id="rabbit">
-            <svg viewBox="0 0 120 170" width="100%" height="100%">
-                <path d="M30,95 C30,80 90,80 90,95 L93,150 C93,160 27,160 27,150 Z" fill="#F9F7F5" />
-                <path d="M30,100 C40,90 80,90 90,100 L95,130 L25,130 Z" fill="#F5B7B1" />
-                <circle cx="60" cy="65" r="30" fill="#F9F7F5" />
-                <circle cx="48" cy="63" r="3" fill="#4A3E3D" />
-                <circle cx="72" cy="63" r="3" fill="#4A3E3D" />
+        <!-- 3. 小兔 (告别同色白！使用杏粉暖色底，与背景彻底区分) -->
+        <div class="role breath-rabbit" id="rabbit-role" onclick="tapRole('rabbit')">
+            <svg viewBox="0 0 130 180">
+                <!-- 长长大耳朵 (杏米色底 + 柔粉心) -->
+                <path d="M42,55 C20,-5 52,-5 58,50 Z" fill="#F2E6D8" stroke="#3A3231" stroke-width="3.5" />
+                <path d="M45,48 C30,8 48,8 53,45 Z" fill="#F0A8B8" />
+                <path d="M78,55 C100,-5 68,-5 62,50 Z" fill="#F2E6D8" stroke="#3A3231" stroke-width="3.5" />
+                <path d="M75,48 C90,8 72,8 67,45 Z" fill="#F0A8B8" />
+                <!-- 身体与裙子 -->
+                <path d="M35,100 C35,82 95,82 95,100 L98,160 C98,168 32,168 32,160 Z" fill="#F2E6D8" stroke="#3A3231" stroke-width="3.5" />
+                <path d="M35,105 C45,95 85,95 95,105 L100,138 L30,138 Z" fill="#F0A8B8" stroke="#3A3231" stroke-width="2.5" />
+                <!-- 圆头 -->
+                <circle cx="65" cy="70" r="32" fill="#F2E6D8" stroke="#3A3231" stroke-width="4" />
+                <circle cx="53" cy="68" r="3.5" fill="#3A3231" />
+                <circle cx="77" cy="68" r="3.5" fill="#3A3231" />
+                <ellipse cx="46" cy="74" rx="6" ry="3.5" fill="#F0A8B8" opacity="0.8" />
+                <ellipse cx="84" cy="74" rx="6" ry="3.5" fill="#F0A8B8" opacity="0.8" />
+                <polygon points="65,74 62,71 68,71" fill="#3A3231" />
             </svg>
         </div>
 
-        <div id="ball">
-            <svg viewBox="0 0 32 32" width="100%" height="100%">
-                <circle cx="16" cy="16" r="14" fill="#E78B75" />
-                <circle cx="16" cy="16" r="14" stroke="#FFF" stroke-width="2" fill="none" />
+        <!-- 玩具球 -->
+        <div id="ball-item" onclick="tapRole('ball')">
+            <svg viewBox="0 0 38 38">
+                <circle cx="19" cy="19" r="16" fill="#F08A75" stroke="#3A3231" stroke-width="3" />
+                <path d="M6,19 A13,13 0 0,0 32,19 Z" fill="#FFEAA7" />
             </svg>
         </div>
+
     </div>
+
+    <!-- 极简控制按键 -->
+    <button class="bottom-btn" id="next-step-btn" onclick="nextScene()">点击听故事 ➔</button>
 </div>
 
 <script>
-    // 多角色语音调谐器 (角色发音区分)
-    function speakRole(role, text) {
-        if (!('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-        
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'zh-CN';
+    // Web Audio 音效合成（针对幼儿设计的清脆趣味反馈）
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        if (role === 'fox') {
-            utter.pitch = 1.25; // 温柔女声/高偏平缓
-            utter.rate = 0.85;
-        } else if (role === 'bear') {
-            utter.pitch = 0.75; // 幼态憨厚低音
-            utter.rate = 0.75;
-        } else if (role === 'rabbit') {
-            utter.pitch = 1.45; // 欢快高音
-            utter.rate = 0.95;
-        }
-
-        window.speechSynthesis.speak(utter);
+    function playPopSound(freq = 400, type = 'sine') {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
     }
 
-    let state = 0;
+    // 状态机流程
+    let step = 0;
 
-    function handleNext() {
-        const dialogue = document.getElementById('dialogue');
-        const nextBtn = document.getElementById('next-btn');
-        const options = document.getElementById('options');
-        const stepTag = document.getElementById('step-tag');
+    function nextScene() {
+        playPopSound(520, 'triangle');
+        step++;
 
-        if (state === 0) {
-            // 步骤2: 认识情绪
-            stepTag.innerText = "2. 认识情绪";
-            dialogue.innerText = "小熊看着球，心里感到越来越委屈和生气...看一看，小熊的心情怎么了？";
-            speakRole('fox', dialogue.innerText);
+        const txt = document.getElementById('story-text');
+        const btn = document.getElementById('next-step-btn');
+        const bearIcon = document.getElementById('bear-icon');
+        const bearBrow = document.getElementById('bear-brow-path');
+        const bearMouth = document.getElementById('bear-mouth-path');
+
+        if (step === 1) {
+            txt.innerText = "小熊没有表达需求，心里又急又生气！点击生气的小熊看看吧";
+            // 变生气表情
+            bearBrow.setAttribute('d', 'M60,46 Q66,54 72,50 M98,50 Q104,54 110,46');
+            bearMouth.setAttribute('d', 'M80,88 Q85,82 90,88');
+            bearIcon.style.display = 'flex';
+            btn.style.display = 'none';
+
+        } else if (step === 2) {
+            txt.innerText = "小熊推了小兔一下，小兔跌倒了！这样解决问题对吗？";
             
-            // 变生气眉毛
-            document.getElementById('bear-brow').setAttribute('d', 'M60,42 Q65,48 70,46 M90,46 Q95,48 100,42');
-
-            // 弹出选择题分支
-            nextBtn.style.display = 'none';
-            options.style.display = 'flex';
-            options.innerHTML = `
-                <button class="choice-btn" onclick="chooseEmotion('sad')">小熊很伤心/生气</button>
-                <button class="choice-btn" onclick="chooseEmotion('happy')">小熊很开心</button>
-            `;
-            state = 1;
-        } else if (state === 2) {
-            // 步骤3: 理解行为
-            stepTag.innerText = "3. 理解行为";
-            dialogue.innerText = "小熊没有说出想法，最后一急，推了小兔一下！小兔摔倒了...";
-            speakRole('fox', dialogue.innerText);
-
-            // 推人微位移
-            document.getElementById('bear').style.transform = 'translateX(25px)';
+            // 推人与倒地
+            document.getElementById('bear-role').style.transform = 'translateX(25px)';
             setTimeout(() => {
-                document.getElementById('rabbit').style.transform = 'translateX(30px) rotate(10deg)';
-                document.getElementById('ball').style.left = '82%';
+                document.getElementById('rabbit-role').style.transform = 'translateX(35px) rotate(15deg)';
+                document.getElementById('ball-item').style.left = '82%';
             }, 300);
 
-            state = 3;
-        } else if (state === 3) {
-            // 步骤4: 表达感受与寻找办法
-            stepTag.innerText = "4. 表达感受与寻找办法";
-            dialogue.innerText = "小狐走过来说：『情绪可以出现，但推人会伤害朋友。小熊，试着说出感受吧！』";
-            speakRole('fox', dialogue.innerText);
+            btn.style.display = 'inline-block';
+            btn.innerText = "小狐来帮忙 🦊";
 
-            document.getElementById('fox').style.left = "28%";
+        } else if (step === 3) {
+            txt.innerText = "小狐说：『情绪可以出现，但行为需要选择。』我们学会用『我感到...因为...』表达！";
+            document.getElementById('fox-role').style.left = '26%';
+            btn.innerText = "引导小熊表达 ❤️";
+
+        } else if (step === 4) {
+            txt.innerText = "小熊说：『我感到生气，因为我也想玩球。』小兔把球共享给了小熊！";
             
-            nextBtn.style.display = 'none';
-            options.style.display = 'flex';
-            options.innerHTML = `
-                <button class="choice-btn" onclick="chooseSolution(1)">使用句式：『我感到...因为...』</button>
-                <button class="choice-btn" onclick="chooseSolution(2)">直接抢走小球</button>
-            `;
-            state = 4;
-        } else if (state === 5) {
-            // 重置
+            // 恢复友好
+            bearBrow.setAttribute('d', 'M60,52 Q66,50 72,52 M98,52 Q104,50 110,52');
+            bearMouth.setAttribute('d', 'M80,85 Q85,88 90,85');
+            document.getElementById('rabbit-role').style.transform = 'none';
+            document.getElementById('rabbit-role').style.left = '65%';
+            document.getElementById('ball-item').style.left = '52%';
+
+            btn.innerText = "再玩一遍 ↺";
+        } else {
             location.reload();
         }
     }
 
-    function chooseEmotion(ans) {
-        const dialogue = document.getElementById('dialogue');
-        const nextBtn = document.getElementById('next-btn');
-        const options = document.getElementById('options');
-
-        if (ans === 'sad') {
-            dialogue.innerText = "答对了！小熊感到委屈和生气，因为他也想玩小球。";
-            speakRole('fox', dialogue.innerText);
-        } else {
-            dialogue.innerText = "小熊其实并不开心哦，他很想玩球但不知道怎么说。";
-            speakRole('fox', dialogue.innerText);
-        }
-
-        options.style.display = 'none';
-        nextBtn.style.display = 'inline-block';
-        nextBtn.innerText = "继续看故事";
-        state = 2;
+    function triggerBearChoice(e) {
+        e.stopPropagation();
+        playPopSound(300, 'sawtooth');
+        document.getElementById('bear-icon').style.display = 'none';
+        nextScene();
     }
 
-    function chooseSolution(type) {
-        const dialogue = document.getElementById('dialogue');
-        const nextBtn = document.getElementById('next-btn');
-        const options = document.getElementById('options');
-
-        if (type === 1) {
-            dialogue.innerText = "小熊对小兔说：『我感到有点生气，因为我也想玩球。可以轮流玩吗？』";
-            speakRole('bear', "我感到有点生气，因为我也想玩球。可以轮流玩吗？");
-            
-            setTimeout(() => {
-                document.getElementById('rabbit').style.transform = 'none';
-                document.getElementById('bear-brow').setAttribute('d', 'M60,46 Q65,44 70,46 M90,46 Q95,44 100,46');
-            }, 1000);
-        } else {
-            dialogue.innerText = "直接抢球会破坏友谊哦。小狐引导小熊用语言来解决问题！";
-            speakRole('fox', dialogue.innerText);
+    function tapRole(roleName) {
+        playPopSound(roleName === 'fox' ? 600 : (roleName === 'bear' ? 350 : 750));
+        const el = document.getElementById(roleName + '-role') || document.getElementById(roleName + '-item');
+        if (el) {
+            el.style.transition = 'transform 0.15s';
+            el.style.transform = 'scale(1.08)';
+            setTimeout(() => el.style.transform = 'none', 150);
         }
-
-        options.style.display = 'none';
-        nextBtn.style.display = 'inline-block';
-        nextBtn.innerText = "重新故事体验";
-        state = 5;
     }
-
-    // 初始化第一句发音
-    window.onload = () => {
-        speakRole('fox', "幼儿园的下午，小兔正在玩球。小熊也想玩球，但他没有说出来...");
-    };
 </script>
 </body>
 </html>
