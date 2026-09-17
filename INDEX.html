@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小狐的心情故事</title>
+    <style>
+        /* 全局低饱和色彩配置 */
+        :root {
+            --bg-color: #F4F6F0;       /* 柔和背景 */
+            --fox-orange: #ECA872;     /* 小狐主色 */
+            --fox-light: #FDF8EF;      /* 肚皮/面部 */
+            --vest-green: #A3C3B1;     /* 背心绿 */
+            --btn-coral: #E78B75;      /* 按钮珊瑚粉 */
+            --text-dark: #4A3E3D;      /* 深咖色文字 */
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none; /* 防止儿童误选文字 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 模拟儿童平板/绘本视窗 */
+        #game-container {
+            width: 100%;
+            max-width: 900px;
+            height: 100vh;
+            max-height: 600px;
+            background: #FDF8EF;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* 顶部极简标题 */
+        .title {
+            font-size: 28px;
+            color: var(--text-dark);
+            font-weight: bold;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* 说话气泡 */
+        .speech-bubble {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            font-size: 20px;
+            color: var(--text-dark);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent;
+        }
+
+        /* 中央大角色：小狐 (SVG二维绘制) */
+        .character-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .fox-svg {
+            width: 220px;
+            height: 220px;
+            transition: transform 0.2s ease;
+        }
+
+        /* 点击角色时的互动动效 */
+        .fox-svg:active {
+            transform: scale(0.95) rotate(-3deg);
+        }
+
+        /* 底部“开始故事”胶囊大按钮 */
+        .start-btn {
+            background-color: var(--btn-coral);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 16px 60px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 00px rgba(231, 139, 117, 0.4);
+            margin-bottom: 20px;
+            animation: float 2s infinite ease-in-out;
+            transition: transform 0.1s;
+        }
+
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* 呼吸浮动动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- 1. 顶部标题 -->
+    <div class="title" id="main-title">小狐的心情故事</div>
+
+    <!-- 2. AI小狐对白气泡 -->
+    <div class="speech-bubble" id="dialogue" onclick="speak()">
+        你好！我是小狐 🦊（点我听声音）
+    </div>
+
+    <!-- 3. 二维卡通小狐角色（大头小身体、低饱和度） -->
+    <div class="character-area" onclick="foxReact()">
+        <svg class="fox-svg" viewBox="0 0 200 200" id="fox-character">
+            <!-- 身体/背心 -->
+            <path d="M70,130 C70,110 130,110 130,130 L140,180 C140,190 60,190 60,180 Z" fill="#A3C3B1" />
+            <!-- 大脑袋 -->
+            <circle cx="100" cy="90" r="55" fill="#ECA872" />
+            <!-- 耳朵 左/右 -->
+            <path d="M55,55 L40,15 L75,45 Z" fill="#ECA872" />
+            <path d="M55,55 L40,15 L75,45 Z" fill="#F5B7B1" transform="scale(0.8) translate(12,10)" />
+            <path d="M145,55 L160,15 L125,45 Z" fill="#ECA872" />
+            <path d="M145,55 L160,15 L125,45 Z" fill="#F5B7B1" transform="scale(0.8) translate(28,10)" />
+            <!-- 脸颊白色花纹 -->
+            <ellipse cx="80" cy="105" rx="20" ry="15" fill="#FDF8EF" />
+            <ellipse cx="120" cy="105" rx="20" ry="15" fill="#FDF8EF" />
+            <!-- 眼睛 -->
+            <circle cx="80" cy="85" r="5" fill="#4A3E3D" />
+            <circle cx="120" cy="85" r="5" fill="#4A3E3D" />
+            <circle cx="82" cy="83" r="2" fill="white" />
+            <circle cx="122" cy="83" r="2" fill="white" />
+            <!-- 腮红 -->
+            <circle cx="70" cy="95" r="7" fill="#F5B7B1" opacity="0.6" />
+            <circle cx="130" cy="95" r="7" fill="#F5B7B1" opacity="0.6" />
+            <!-- 鼻子与嘴巴 -->
+            <circle cx="100" cy="95" r="4" fill="#4A3E3D" />
+            <path d="M95,102 Q100,107 105,102" stroke="#4A3E3D" stroke-width="2" fill="none" id="fox-mouth" />
+        </svg>
+    </div>
+
+    <!-- 4. 交互大按钮 -->
+    <button class="start-btn" id="action-btn" onclick="nextStep()">开始故事</button>
+</div>
+
+<script>
+    let step = 0;
+
+    // 状态切换与游戏流程逻辑
+    function nextStep() {
+        step++;
+        const dialogue = document.getElementById('dialogue');
+        const btn = document.getElementById('action-btn');
+        const title = document.getElementById('main-title');
+
+        if (step === 1) {
+            title.innerText = "场景一：幼儿园的小球";
+            dialogue.innerText = "下午，小熊和小兔在玩球，小熊也想玩...";
+            btn.innerText = "小熊怎么了？";
+            speakText("下午，小熊和小兔在玩球，小熊也想玩");
+        } else if (step === 2) {
+            dialogue.innerText = "小熊没有说出来，推了小兔一下！他感觉很委屈。";
+            btn.innerText = "帮小熊表达感受";
+            speakText("小熊没有说出来，推了小兔一下！他感觉很委屈。");
+        } else if (step === 3) {
+            dialogue.innerText = "跟小狐一起说：『我感到生气，因为我也想玩球。』";
+            btn.innerText = "重新开始故事";
+            speakText("跟小狐一起说：我感到生气，因为我也想玩球。");
+        } else {
+            step = 0;
+            title.innerText = "小狐的心情故事";
+            dialogue.innerText = "你好！我是小狐 🦊（点我听声音）";
+            btn.innerText = "开始故事";
+        }
+    }
+
+    // 语音朗读功能（模拟AI陪伴发声，适合幼童）
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.9; // 稍微放慢语速，适合幼儿
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function speak() {
+        const text = document.getElementById('dialogue').innerText;
+        speakText(text);
+    }
+
+    // 点击小狐触发肢体反馈
+    function foxReact() {
+        const dialogue = document.getElementById('dialogue');
+        dialogue.style.transform = 'scale(1.1)';
+        setTimeout(() => dialogue.style.transform = 'scale(1)', 200);
+        speakText("我是你的心情好朋友小狐！");
+    }
+</script>
+
+</body>
+</html>
